@@ -1,0 +1,868 @@
+```python
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import scipy as sp
+import seaborn as sns
+import os
+os.chdir("G:/EDA PROJECT/DATA SET")
+```
+
+
+```python
+data=pd.read_csv("churn_data.csv")
+print(data)
+```
+
+         CustomerID  Churn  Tenure PreferredLoginDevice  CityTier  \
+    0         50001      1     4.0         Mobile Phone         3   
+    1         50002      1     NaN                Phone         1   
+    2         50003      1     NaN                Phone         1   
+    3         50004      1     0.0                Phone         3   
+    4         50005      1     0.0                Phone         1   
+    ..          ...    ...     ...                  ...       ...   
+    494       50495      0     6.0                Phone         3   
+    495       50496      0     8.0                Phone         1   
+    496       50497      0     9.0         Mobile Phone         3   
+    497       50498      0     5.0                Phone         3   
+    498       50499      0     3.0             Computer         1   
+    
+         WarehouseToHome PreferredPaymentMode  Gender  HourSpendOnApp  \
+    0                6.0           Debit Card  Female             3.0   
+    1                8.0                  UPI    Male             3.0   
+    2               30.0           Debit Card    Male             2.0   
+    3               15.0           Debit Card    Male             2.0   
+    4               12.0                   CC    Male             NaN   
+    ..               ...                  ...     ...             ...   
+    494              6.0          Credit Card    Male             2.0   
+    495              NaN                   CC  Female             2.0   
+    496              6.0           Debit Card    Male             2.0   
+    497             19.0           Debit Card    Male             3.0   
+    498             11.0           Debit Card    Male             3.0   
+    
+         NumberOfDeviceRegistered    PreferedOrderCat  SatisfactionScore  \
+    0                           3  Laptop & Accessory                  2   
+    1                           4              Mobile                  3   
+    2                           4              Mobile                  3   
+    3                           4  Laptop & Accessory                  5   
+    4                           3              Mobile                  5   
+    ..                        ...                 ...                ...   
+    494                         1  Laptop & Accessory                  5   
+    495                         4              Mobile                  5   
+    496                         3  Laptop & Accessory                  2   
+    497                         3  Laptop & Accessory                  2   
+    498                         4        Mobile Phone                  2   
+    
+        MaritalStatus  NumberOfAddress  Complain  OrderAmountHikeFromlastYear  \
+    0          Single                9         1                         11.0   
+    1          Single                7         1                         15.0   
+    2          Single                6         1                         14.0   
+    3          Single                8         0                         23.0   
+    4          Single                3         0                         11.0   
+    ..            ...              ...       ...                          ...   
+    494       Married                2         0                         22.0   
+    495        Single                2         0                         11.0   
+    496      Divorced                2         1                         14.0   
+    497       Married                3         0                         11.0   
+    498       Married               10         0                         12.0   
+    
+         CouponUsed  OrderCount  DaySinceLastOrder  CashbackAmount  
+    0           1.0         1.0                5.0             160  
+    1           0.0         1.0                0.0             121  
+    2           0.0         1.0                3.0             120  
+    3           0.0         1.0                3.0             134  
+    4           1.0         1.0                3.0             130  
+    ..          ...         ...                ...             ...  
+    494         0.0         1.0                8.0             140  
+    495         1.0         1.0                1.0             126  
+    496         2.0         4.0               11.0             162  
+    497         0.0         1.0                3.0             144  
+    498         0.0         1.0                3.0             138  
+    
+    [499 rows x 20 columns]
+    
+
+
+```python
+data.shape
+```
+
+
+
+
+    (499, 20)
+
+
+
+
+```python
+x=print(data.columns)
+```
+
+    Index(['CustomerID', 'Churn', 'Tenure', 'PreferredLoginDevice', 'CityTier',
+           'WarehouseToHome', 'PreferredPaymentMode', 'Gender', 'HourSpendOnApp',
+           'NumberOfDeviceRegistered', 'PreferedOrderCat', 'SatisfactionScore',
+           'MaritalStatus', 'NumberOfAddress', 'Complain',
+           'OrderAmountHikeFromlastYear', 'CouponUsed', 'OrderCount',
+           'DaySinceLastOrder', 'CashbackAmount'],
+          dtype='object')
+    
+
+
+```python
+data.info()
+```
+
+    <class 'pandas.core.frame.DataFrame'>
+    RangeIndex: 499 entries, 0 to 498
+    Data columns (total 20 columns):
+     #   Column                       Non-Null Count  Dtype  
+    ---  ------                       --------------  -----  
+     0   CustomerID                   499 non-null    int64  
+     1   Churn                        499 non-null    int64  
+     2   Tenure                       450 non-null    float64
+     3   PreferredLoginDevice         499 non-null    object 
+     4   CityTier                     499 non-null    int64  
+     5   WarehouseToHome              457 non-null    float64
+     6   PreferredPaymentMode         499 non-null    object 
+     7   Gender                       499 non-null    object 
+     8   HourSpendOnApp               455 non-null    float64
+     9   NumberOfDeviceRegistered     499 non-null    int64  
+     10  PreferedOrderCat             499 non-null    object 
+     11  SatisfactionScore            499 non-null    int64  
+     12  MaritalStatus                499 non-null    object 
+     13  NumberOfAddress              499 non-null    int64  
+     14  Complain                     499 non-null    int64  
+     15  OrderAmountHikeFromlastYear  485 non-null    float64
+     16  CouponUsed                   470 non-null    float64
+     17  OrderCount                   481 non-null    float64
+     18  DaySinceLastOrder            482 non-null    float64
+     19  CashbackAmount               499 non-null    int64  
+    dtypes: float64(7), int64(8), object(5)
+    memory usage: 78.1+ KB
+    
+
+
+```python
+data.describe()
+```
+
+```python
+for col in data.columns:
+    if data[col].dtype == 'object':
+        print(f'Unique values in column {col}: {data[col].unique()}')
+```
+
+    Unique values in column PreferredLoginDevice: ['Mobile Phone' 'Phone' 'Computer']
+    Unique values in column PreferredPaymentMode: ['Debit Card' 'UPI' 'CC' 'Cash on Delivery' 'E wallet' 'COD' 'Credit Card']
+    Unique values in column Gender: ['Female' 'Male']
+    Unique values in column PreferedOrderCat: ['Laptop & Accessory' 'Mobile' 'Mobile Phone' 'Others' 'Fashion' 'Grocery']
+    Unique values in column MaritalStatus: ['Single' 'Divorced' 'Married']
+    
+
+
+```python
+data.plot(figsize=(10,16),subplots=True)
+```
+
+
+
+
+    array([<Axes: >, <Axes: >, <Axes: >, <Axes: >, <Axes: >, <Axes: >,
+           <Axes: >, <Axes: >, <Axes: >, <Axes: >, <Axes: >, <Axes: >,
+           <Axes: >, <Axes: >, <Axes: >], dtype=object)
+
+
+
+```python
+data.plot.area(figsize=(10,16),subplots=True)
+```
+
+
+
+
+    array([<Axes: >, <Axes: >, <Axes: >, <Axes: >, <Axes: >, <Axes: >,
+           <Axes: >, <Axes: >, <Axes: >, <Axes: >, <Axes: >, <Axes: >,
+           <Axes: >, <Axes: >, <Axes: >], dtype=object
+
+
+
+```python
+#churn by gender
+a=data.groupby(['Gender','Churn']).count()['CustomerID']
+a.unstack().plot(kind='bar',stacked=False)
+x_label=('gender')
+y_label=('count')
+plt.title('churn caused by gender')
+```
+
+
+
+
+```python
+#churn by tenure
+a=data.groupby(['Tenure','Churn']).count()['Gender']
+a.unstack().plot(kind='bar',stacked=False)
+x_label=('tenure')
+y_label=('count')
+plt.title('churn caused by tenure')
+plt.show()
+```
+
+
+```python
+#churn by marital status
+a=data.groupby(['MaritalStatus','Churn']).count()['CustomerID']
+a.unstack().plot(kind='bar',stacked=False)
+x_label=('MaritalStatus')
+y_label=('count')
+plt.title('churn caused by MaritalStatus')
+plt.show()
+```
+
+
+    
+![png](output_12_0.png)
+    
+
+
+
+```python
+#churn by prefered payment method
+a=data.groupby(['PreferredPaymentMode','Churn']).count()['CustomerID']
+a.unstack().plot(kind='bar',stacked=False)
+x_label=('PreferredPaymentMode')
+y_label=('count')
+plt.title('churn caused by prefered payment mode')
+plt.show()
+```
+
+
+```python
+#churn by preferred order cat
+a=data.groupby(['PreferedOrderCat','Churn']).count()['CustomerID']
+a.unstack().plot(kind='bar',stacked=False)
+x_label=('PreferedOrderCat')
+y_label=('count')
+plt.title('churn caused by PreferedOrderCat')
+plt.show()
+```
+
+```python
+#churn by preferred login device
+a=data.groupby(['PreferredLoginDevice','Churn']).count()['CustomerID']
+a.unstack().plot(kind='bar',stacked=False)
+x_label=('PreferredLoginDevice')
+y_label=('count')
+plt.title('churn caused by PreferredLoginDevice')
+plt.show()
+```
+
+```python
+for i in data.columns:
+    if((data[i].dtype == 'int64') | (data[i].dtype == 'float64')):
+        plt.title(i)
+        sns.boxplot(data[i])
+        plt.show()
+```
+
+
+```python
+#pie chart
+#'What factors caused our customer retent and turn into Company X'
+churn=(data['Churn']==1).sum()
+no_churn=(data['Churn']==0).sum()
+labels=['churn','no_churn']
+fig=plt.figure(figsize=(6,8))
+plt.title('customer churn rate at a company x')
+plt.pie([churn,no_churn],labels=labels,autopct='%.0f%%')
+plt.show()
+```
+
+
+```python
+#handling missing values
+print(data.isnull())
+```
+
+         CustomerID  Churn  Tenure  PreferredLoginDevice  CityTier  \
+    0         False  False   False                 False     False   
+    1         False  False    True                 False     False   
+    2         False  False    True                 False     False   
+    3         False  False   False                 False     False   
+    4         False  False   False                 False     False   
+    ..          ...    ...     ...                   ...       ...   
+    494       False  False   False                 False     False   
+    495       False  False   False                 False     False   
+    496       False  False   False                 False     False   
+    497       False  False   False                 False     False   
+    498       False  False   False                 False     False   
+    
+         WarehouseToHome  PreferredPaymentMode  Gender  HourSpendOnApp  \
+    0              False                 False   False           False   
+    1              False                 False   False           False   
+    2              False                 False   False           False   
+    3              False                 False   False           False   
+    4              False                 False   False            True   
+    ..               ...                   ...     ...             ...   
+    494            False                 False   False           False   
+    495             True                 False   False           False   
+    496            False                 False   False           False   
+    497            False                 False   False           False   
+    498            False                 False   False           False   
+    
+         NumberOfDeviceRegistered  PreferedOrderCat  SatisfactionScore  \
+    0                       False             False              False   
+    1                       False             False              False   
+    2                       False             False              False   
+    3                       False             False              False   
+    4                       False             False              False   
+    ..                        ...               ...                ...   
+    494                     False             False              False   
+    495                     False             False              False   
+    496                     False             False              False   
+    497                     False             False              False   
+    498                     False             False              False   
+    
+         MaritalStatus  NumberOfAddress  Complain  OrderAmountHikeFromlastYear  \
+    0            False            False     False                        False   
+    1            False            False     False                        False   
+    2            False            False     False                        False   
+    3            False            False     False                        False   
+    4            False            False     False                        False   
+    ..             ...              ...       ...                          ...   
+    494          False            False     False                        False   
+    495          False            False     False                        False   
+    496          False            False     False                        False   
+    497          False            False     False                        False   
+    498          False            False     False                        False   
+    
+         CouponUsed  OrderCount  DaySinceLastOrder  CashbackAmount  
+    0         False       False              False           False  
+    1         False       False              False           False  
+    2         False       False              False           False  
+    3         False       False              False           False  
+    4         False       False              False           False  
+    ..          ...         ...                ...             ...  
+    494       False       False              False           False  
+    495       False       False              False           False  
+    496       False       False              False           False  
+    497       False       False              False           False  
+    498       False       False              False           False  
+    
+    [499 rows x 20 columns]
+    
+
+
+```python
+for i in data.columns:
+    if(data[i].isnull().sum()>0):
+        misval=(data[i].isnull().sum()/len(data[i]))*100
+        print(f'{i} Perc. Mis Val = {misval:.2f} %')
+```
+
+    Tenure Perc. Mis Val = 9.82 %
+    WarehouseToHome Perc. Mis Val = 8.42 %
+    HourSpendOnApp Perc. Mis Val = 8.82 %
+    OrderAmountHikeFromlastYear Perc. Mis Val = 2.81 %
+    CouponUsed Perc. Mis Val = 5.81 %
+    OrderCount Perc. Mis Val = 3.61 %
+    DaySinceLastOrder Perc. Mis Val = 3.41 %
+    
+
+
+```python
+print(data.isnull().sum())
+```
+
+    CustomerID                      0
+    Churn                           0
+    Tenure                         49
+    PreferredLoginDevice            0
+    CityTier                        0
+    WarehouseToHome                42
+    PreferredPaymentMode            0
+    Gender                          0
+    HourSpendOnApp                 44
+    NumberOfDeviceRegistered        0
+    PreferedOrderCat                0
+    SatisfactionScore               0
+    MaritalStatus                   0
+    NumberOfAddress                 0
+    Complain                        0
+    OrderAmountHikeFromlastYear    14
+    CouponUsed                     29
+    OrderCount                     18
+    DaySinceLastOrder              17
+    CashbackAmount                  0
+    dtype: int64
+    
+
+
+```python
+data = data.fillna(data.mode().iloc[0])
+print(data)
+```
+
+         CustomerID  Churn  Tenure PreferredLoginDevice  CityTier  \
+    0         50001      1     4.0         Mobile Phone         3   
+    1         50002      1     0.0                Phone         1   
+    2         50003      1     0.0                Phone         1   
+    3         50004      1     0.0                Phone         3   
+    4         50005      1     0.0                Phone         1   
+    ..          ...    ...     ...                  ...       ...   
+    494       50495      0     6.0                Phone         3   
+    495       50496      0     8.0                Phone         1   
+    496       50497      0     9.0         Mobile Phone         3   
+    497       50498      0     5.0                Phone         3   
+    498       50499      0     3.0             Computer         1   
+    
+         WarehouseToHome PreferredPaymentMode  Gender  HourSpendOnApp  \
+    0                6.0           Debit Card  Female             3.0   
+    1                8.0                  UPI    Male             3.0   
+    2               30.0           Debit Card    Male             2.0   
+    3               15.0           Debit Card    Male             2.0   
+    4               12.0                   CC    Male             2.0   
+    ..               ...                  ...     ...             ...   
+    494              6.0          Credit Card    Male             2.0   
+    495              6.0                   CC  Female             2.0   
+    496              6.0           Debit Card    Male             2.0   
+    497             19.0           Debit Card    Male             3.0   
+    498             11.0           Debit Card    Male             3.0   
+    
+         NumberOfDeviceRegistered    PreferedOrderCat  SatisfactionScore  \
+    0                           3  Laptop & Accessory                  2   
+    1                           4              Mobile                  3   
+    2                           4              Mobile                  3   
+    3                           4  Laptop & Accessory                  5   
+    4                           3              Mobile                  5   
+    ..                        ...                 ...                ...   
+    494                         1  Laptop & Accessory                  5   
+    495                         4              Mobile                  5   
+    496                         3  Laptop & Accessory                  2   
+    497                         3  Laptop & Accessory                  2   
+    498                         4        Mobile Phone                  2   
+    
+        MaritalStatus  NumberOfAddress  Complain  OrderAmountHikeFromlastYear  \
+    0          Single                9         1                         11.0   
+    1          Single                7         1                         15.0   
+    2          Single                6         1                         14.0   
+    3          Single                8         0                         23.0   
+    4          Single                3         0                         11.0   
+    ..            ...              ...       ...                          ...   
+    494       Married                2         0                         22.0   
+    495        Single                2         0                         11.0   
+    496      Divorced                2         1                         14.0   
+    497       Married                3         0                         11.0   
+    498       Married               10         0                         12.0   
+    
+         CouponUsed  OrderCount  DaySinceLastOrder  CashbackAmount  
+    0           1.0         1.0                5.0             160  
+    1           0.0         1.0                0.0             121  
+    2           0.0         1.0                3.0             120  
+    3           0.0         1.0                3.0             134  
+    4           1.0         1.0                3.0             130  
+    ..          ...         ...                ...             ...  
+    494         0.0         1.0                8.0             140  
+    495         1.0         1.0                1.0             126  
+    496         2.0         4.0               11.0             162  
+    497         0.0         1.0                3.0             144  
+    498         0.0         1.0                3.0             138  
+    
+    [499 rows x 20 columns]
+    
+
+
+```python
+print(data.isnull().sum())
+```
+
+    CustomerID                     0
+    Churn                          0
+    Tenure                         0
+    PreferredLoginDevice           0
+    CityTier                       0
+    WarehouseToHome                0
+    PreferredPaymentMode           0
+    Gender                         0
+    HourSpendOnApp                 0
+    NumberOfDeviceRegistered       0
+    PreferedOrderCat               0
+    SatisfactionScore              0
+    MaritalStatus                  0
+    NumberOfAddress                0
+    Complain                       0
+    OrderAmountHikeFromlastYear    0
+    CouponUsed                     0
+    OrderCount                     0
+    DaySinceLastOrder              0
+    CashbackAmount                 0
+    dtype: int64
+    
+
+
+```python
+data.info()
+```
+
+    <class 'pandas.core.frame.DataFrame'>
+    RangeIndex: 499 entries, 0 to 498
+    Data columns (total 20 columns):
+     #   Column                       Non-Null Count  Dtype  
+    ---  ------                       --------------  -----  
+     0   CustomerID                   499 non-null    int64  
+     1   Churn                        499 non-null    int64  
+     2   Tenure                       499 non-null    float64
+     3   PreferredLoginDevice         499 non-null    object 
+     4   CityTier                     499 non-null    int64  
+     5   WarehouseToHome              499 non-null    float64
+     6   PreferredPaymentMode         499 non-null    object 
+     7   Gender                       499 non-null    object 
+     8   HourSpendOnApp               499 non-null    float64
+     9   NumberOfDeviceRegistered     499 non-null    int64  
+     10  PreferedOrderCat             499 non-null    object 
+     11  SatisfactionScore            499 non-null    int64  
+     12  MaritalStatus                499 non-null    object 
+     13  NumberOfAddress              499 non-null    int64  
+     14  Complain                     499 non-null    int64  
+     15  OrderAmountHikeFromlastYear  499 non-null    float64
+     16  CouponUsed                   499 non-null    float64
+     17  OrderCount                   499 non-null    float64
+     18  DaySinceLastOrder            499 non-null    float64
+     19  CashbackAmount               499 non-null    int64  
+    dtypes: float64(7), int64(8), object(5)
+    memory usage: 78.1+ KB
+    
+
+
+```python
+#correlation matrix
+plt.figure(figsize=(15,10))
+sns.heatmap(data.corr(),cmap='coolwarm',annot=True)
+plt.show()
+```
+
+    C:\Users\DELL\AppData\Local\Temp\ipykernel_8964\1976102012.py:3: FutureWarning: The default value of numeric_only in DataFrame.corr is deprecated. In a future version, it will default to False. Select only valid columns or specify the value of numeric_only to silence this warning.
+      sns.heatmap(data.corr(),cmap='coolwarm',annot=True)
+    
+
+
+    
+![png](output_24_1.png)
+    
+
+
+The correlation matrix shows that coupon used, order count, days since last order, and cashback amount are positively correlated. This means that as the value of one variable increases, the value of the other variables is likely to increase as well. This could indicate that customers who use coupons, place more orders, have made their last order more recently, and receive a higher cashback amount are more likely to be active and engaged with the company.
+
+On the other hand, tenure is negatively correlated with churn. This suggests that customers who have been with the company for a longer period of time are less likely to leave compared to those with shorter tenures. This could be due to increased loyalty and satisfaction with the company's products and services over time.
+
+
+```python
+# Calculating the average churn for binary discrete variables 
+
+estimate_1_list = []
+estimate_0_list = []
+diffs_list = []
+
+mean_churn_1 = []
+mean_churn_1_upper_limit = []
+mean_churn_1_lower_limit = []
+
+mean_churn_0 = []
+mean_churn_0_upper_limit = []
+mean_churn_0_lower_limit = []
+
+diff_means = []
+diff_means_upper_limit = []
+diff_means_lower_limit = []
+
+col_names =  list(data.columns[0:-4])
+
+for col_name in col_names:
+    mean_churn = np.array(data['Churn'] ==1)
+    mean_churn2 = np.array(data['Churn'] == 0)
+    
+    mean_churn_diff = mean_churn.mean() - mean_churn2.mean()
+    
+    for i in range(10000):
+        estimate_1 = np.random.choice(mean_churn,1000)
+        estimate_0 = np.random.choice(mean_churn2,1000)
+        estimate_1_list.append(estimate_1.mean())
+        estimate_0_list.append(estimate_0.mean())
+        
+        diff = estimate_1.mean() - estimate_0.mean()
+        diffs_list.append(diff)
+    
+    
+    fig, (ax3, ax4) = plt.subplots(1, 2, figsize=[15 , 4], gridspec_kw={'width_ratios': [10, 5],'wspace': 0.1});
+    ax3.hist(estimate_1_list, bins=40, alpha=0.5, label=f'{col_name} = 1')
+    ax3.hist(estimate_0_list, bins=40, alpha=0.5, label=f'{col_name} = 0')
+    ax3.axvline(mean_churn.mean(), color='blue', label='Mean = 1')
+    ax3.axvline(np.percentile(estimate_1_list, 97.5), color='blue', linestyle='dotted', label = 'UL & LL = 1')
+    ax3.axvline(np.percentile(estimate_1_list, 2.5), color='blue', linestyle='dotted')
+    ax3.axvline(mean_churn2.mean(), color='orange', label='Mean = 0')
+    ax3.axvline(np.percentile(estimate_0_list, 97.5), color='orange', linestyle='dotted', label = 'UL & LL = 0')
+    ax3.axvline(np.percentile(estimate_0_list, 2.5), color='orange', linestyle='dotted')
+    ax3.legend()
+    
+    ax4.hist(diffs_list, bins=40, alpha=0.5, label='difference', color='g')
+    ax4.axvline(mean_churn_diff, color='orange', ls='--', label='Test Value')
+    ax4.text(np.min(diffs_list), 750, 'Bootstrap diff means')
+    ax4.axvline(np.percentile(diffs_list, 2.5), color='orange', ls='--')
+    ax4.axvline(np.percentile(diffs_list, 97.5), color='orange', ls='--')
+     
+    mean_churn_1.append(mean_churn.mean())
+    mean_churn_1_upper_limit.append(np.percentile(estimate_1_list, 97.5))
+    mean_churn_1_lower_limit.append(np.percentile(estimate_1_list, 2.5))
+    mean_churn_0.append(mean_churn2.mean())
+    mean_churn_0_upper_limit.append(np.percentile(estimate_0_list, 97.5))
+    mean_churn_0_lower_limit.append(np.percentile(estimate_0_list, 2.5))
+    
+    diff_means.append(mean_churn_diff.mean())
+    diff_means_upper_limit.append(np.percentile(diffs_list, 97.5))
+    diff_means_lower_limit.append(np.percentile(diffs_list, 2.5))
+    
+         
+    estimate_1_list = []
+    estimate_0_list = [] 
+    diffs_list = []
+```
+
+```python
+list_values = {'col_names' :col_names, 'mean_churn_1' : mean_churn_1, 'mean_churn_1_upper_limit' : mean_churn_1_upper_limit,
+               'mean_churn_1_lower_limit' : mean_churn_1_lower_limit, 'mean_churn_0' : mean_churn_0,
+               'mean_churn_0_upper_limit' : mean_churn_0_upper_limit, 'mean_churn_0_lower_limit' : mean_churn_0_lower_limit,
+               'diff_means' : diff_means, 'diff_means_upper_limit': diff_means_upper_limit,
+               'diff_means_lower_limit' : diff_means_lower_limit}
+
+estimation_table = pd.DataFrame(list_values)
+
+estimation_table
+```
+
+```python
+col_names = ['DaySinceLastOrder','WarehouseToHome','Churn','OrderCount','NumberOfDeviceRegistered',
+ 'CashbackAmount','NumberOfAddress','HourSpendOnApp','CouponUsed']
+```
+
+# I-Q-R METHOD FOR OUTLIER DETECTION
+
+
+```python
+ def out_iqr(data , column):
+        global lower,upper
+        q25= np.quantile(data[column], 0.25)
+        q75=np.quantile(data[column], 0.75)
+        # calculate the IQR
+        iqr = q75 - q25
+        # calculate the outlier cutoff
+        cut_off = iqr * 1.5
+        # calculate the lower and upper bound value
+        lower= q25 - cut_off
+        upper=q75 + cut_off
+        print('The IQR is',iqr)
+        print('The lower bound value is', lower)
+        print('The upper bound value is', upper)
+        # Calculate the number of records below and above lower and above bound value respectively
+        df1 = data[data[column] > upper]
+        df2 = data[data[column] < lower]
+        return print('Total number of outliers are', df1.shape[0]+ df2.shape[0])
+```
+
+
+```python
+for feature in col_names:
+    print("For column",feature,":")
+    out_iqr(data,feature)
+    print()
+    random_data_new = data[(data[feature] < upper) | (data[feature] > lower)]
+
+```
+
+    For column DaySinceLastOrder :
+    The IQR is 5.0
+    The lower bound value is -5.5
+    The upper bound value is 14.5
+    Total number of outliers are 0
+    
+    For column WarehouseToHome :
+    The IQR is 9.0
+    The lower bound value is -5.5
+    The upper bound value is 30.5
+    Total number of outliers are 0
+    
+    For column Churn :
+    The IQR is 0.0
+    The lower bound value is 0.0
+    The upper bound value is 0.0
+    Total number of outliers are 0
+    
+    For column OrderCount :
+    The IQR is 1.0
+    The lower bound value is -0.5
+    The upper bound value is 3.5
+    Total number of outliers are 0
+    
+    For column NumberOfDeviceRegistered :
+    The IQR is 1.0
+    The lower bound value is 1.5
+    The upper bound value is 5.5
+    Total number of outliers are 0
+    
+    For column CashbackAmount :
+    The IQR is 52.0
+    The lower bound value is 51.0
+    The upper bound value is 259.0
+    Total number of outliers are 0
+    
+    For column NumberOfAddress :
+    The IQR is 3.0
+    The lower bound value is -2.5
+    The upper bound value is 9.5
+    Total number of outliers are 0
+    
+    For column HourSpendOnApp :
+    The IQR is 1.0
+    The lower bound value is 0.5
+    The upper bound value is 4.5
+    Total number of outliers are 0
+    
+    For column CouponUsed :
+    The IQR is 1.0
+    The lower bound value is -1.5
+    The upper bound value is 2.5
+    Total number of outliers are 0
+    
+    
+
+# Z-SCORE METHOD FOR OUTLIER DETECTION
+
+
+```python
+def out_zscore(data):
+    global outliers,zscore
+    outliers = []
+    zscore = []
+    threshold = 3
+    mean = np.mean(data)
+    std = np.std(data)
+    for i in data:
+        z_score= (i - mean)/std
+        zscore.append(z_score)
+        if np.abs(z_score) > threshold:
+            outliers.append(i)
+    return print("Total number of outliers are",len(outliers))
+```
+
+
+```python
+for feature in col_names:
+    print("For column",feature,":")
+    out_zscore(data[feature])
+    print()
+    random_data_new = data[(data[feature] < 3) | (data[feature] > -3)]
+```
+
+    For column DaySinceLastOrder :
+    Total number of outliers are 6
+    
+    For column WarehouseToHome :
+    Total number of outliers are 0
+    
+    For column Churn :
+    Total number of outliers are 0
+    
+    For column OrderCount :
+    Total number of outliers are 0
+    
+    For column NumberOfDeviceRegistered :
+    Total number of outliers are 0
+    
+    For column CashbackAmount :
+    Total number of outliers are 0
+    
+    For column NumberOfAddress :
+    Total number of outliers are 0
+    
+    For column HourSpendOnApp :
+    Total number of outliers are 1
+    
+    For column CouponUsed :
+    Total number of outliers are 0
+    
+    
+
+    C:\Users\DELL\AppData\Local\Temp\ipykernel_8964\2805899242.py:9: RuntimeWarning: invalid value encountered in double_scalars
+      z_score= (i - mean)/std
+    
+
+# BOX-PLOT FOR OUTLIER DETECTION
+
+
+```python
+for i in data.columns:
+    if((data[i].dtype == 'int64') | (data[i].dtype == 'float64')):
+        plt.title(i)
+        sns.boxplot(data[i])
+        plt.show()
+```
+
+```python
+
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import classification_report,confusion_matrix , roc_curve
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score,roc_auc_score
+```
+
+```python
+
+X = data.drop(['marital status'], axis=1)
+y = data.rating
+X = pd.get_dummies(X, drop_first=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=12)
+y_train.value_counts()
+
+#StandardScaler() function to standardize the data values into a standard format.
+from sklearn.preprocessing import StandardScaler
+
+sc = StandardScaler()
+
+X_train = sc.fit_transform(X_train)
+X_test = sc.transform(X_test)
+
+
+#LOGISTIC REGRESSION
+lr_clf = LogisticRegression(random_state = 0)
+
+lr_clf.fit(X_train, y_train)
+
+print('Accuracy on training set:',lr_clf.score(X_train,y_train)*100)
+print('Accuracy on test set:',lr_clf.score(X_test,y_test)*100)
+
+#NAIVE BAYES
+nb_clf= GaussianNB()
+nb_clf.fit(X_train, y_train)
+
+print('Accuracy on training set:',nb_clf.score(X_train,y_train)*100)
+print('Accuracy on test set:',nb_clf.score(X_test,y_test)*100)
+
+#RANDOM FOREST
+rf_clf = RandomForestRegressor(n_estimators = 10, random_state = 0)
+rf_clf.fit(X_train, y_train)
+
+print('Accuracy on training set:',rf_clf.score(X_train,y_train)*100)
+print('Accuracy on test set:',rf_clf.score(X_test,y_test)*100)
+
+#DECISION TREE
+dec_clf = DecisionTreeClassifier()
+dec_clf.fit(X_train, y_train)
+
+print('Accuracy on training set:',dec_clf.score(X_train, y_train)*100)
+print('Accuracy on test set:',dec_clf.score(X_test, y_test)*100)
+```
